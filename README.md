@@ -1,3 +1,40 @@
+# Note on experiment with OAK-D
+Here is how to launch depthai ros node with imu, depth, rgb, yolov4 detection
+
+0. (Prerequisit) Build depthai-ros with ROS2 foxy.<br>
+See information about source install. 
+
+1. Source workspace
+```
+cd ~/dai_ws
+source install/setup.bash
+```
+2. Launch Node
+```
+ros2 launch depthai_examples stereo_inertial_node.launch.py  nnName:={/path/to/blob} manualExposure:=False
+
+# when using auto-exposure and default tiny-yolov4 model, just run
+ros2 launch depthai_examples stereo_inertial_node.launch.py
+```
+Path to NN blob is `~/dai_ws/src/depthai-ros/depthai_examples/resources/yolov4_tiny_coco_416x416_openvino_2021.4_6shave_bgr.blob` by default. When using converted darknet tiny-yolov4, copy the file here and specify the path. 
+
+3. ros2 bag
+```
+ros2 bag record -o stereo-imu-yolov4 /stereo/camera_info /stereo/converted_depth /imu /color/camera_info /color/image /color/yolov4_Spatial_detections
+```
+
+4. Play bag file 
+```
+cd ~/dai_ws/src/depthai-ros
+
+#1st terminal 
+ros2 bag play stereo-imu-yolov4
+
+#2nd terminal
+rviz2 -d depthai_examples/rviz/rosbag.rviz
+```
+---
+
 # Depthai ROS Repository
 Hi and welcome to the main depthai-ros respository!
 

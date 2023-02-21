@@ -404,7 +404,16 @@ def generate_launch_description():
             arguments=['--display-config', rectify_rviz],
             condition=IfCondition(enableRviz))
 
-
+    # Tiny-Yolov4 Spatial detection node
+    yolov4_spatial_node = launch_ros.actions.Node(
+            package='depthai_examples', executable='yolov4_spatial_node',
+            output='screen',
+            parameters=[{'tf_prefix': tf_prefix},
+                        {'camera_param_uri': camera_param_uri},
+                        {'sync_nn': sync_nn},
+                        {'nnName': nnName},
+                        {'resourceBaseFolder': resourceBaseFolder},
+                        {'monoResolution': monoResolution}])
 
     if point_cloud_creator is not None:
         point_cloud_container = launch_ros.actions.ComposableNodeContainer(
@@ -478,6 +487,7 @@ def generate_launch_description():
 
     ld.add_action(urdf_launch)
     ld.add_action(stereo_node)
+    ld.add_action(yolov4_spatial_node)
 
     if LaunchConfigurationEquals('depth_aligned', 'True') and LaunchConfigurationEquals('rectify', 'True'):
         ld.add_action(point_cloud_container)
