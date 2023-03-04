@@ -1,3 +1,47 @@
+# (Documentation on experiment)
+I have done the following things so far. 
+
+* Use depthai_ros_driver to publish stereo images, imu data, and yolo BBox detection on RGB
+* Recorded data above following the trajectory that can cause loop closure
+* Stored rosbag (`.bag`) (can be found [here](https://drive.google.com/file/d/1B5j6kje0WWNUdxHL8pjYAa3ob94_rZDz/view?usp=share_link))
+
+The following is the brief description of sensor data collected.
+
+* Stereo Images
+  * 400p (400x640px)
+  * 480p is not available option for [OV9282](https://docs.luxonis.com/projects/hardware/en/latest/pages/articles/sensors/ov9282.html#ov9282) image sensors
+  * auto-exposure
+* IMU
+  * default setting (not sure)
+* Yolo BBox
+  * in depthai custom message
+  * BBox is collected by inference on 1080p(720x1080px)image
+  * when fusing bbox info with mono-images, (definitely) need to transform BBox scale(*note1)
+
+To get rosbag, execute the following commands
+
+```
+#1st terminal
+cd ~/catkin_ws/
+source devel/setup.bash
+roslaunch depthai_ros_driver camera.launch params_file:={/path/to/param/file}
+# I have used param file : depthai_ros_driver/config/stereo_inertial.yaml
+# This is the modified param file based on depthai_ros_driver/config/camera.yaml
+```
+
+```
+#2nd terminal 
+cd ~/catkin_ws/
+source devel/setup.bash (#without sourcing causes error when recording object detection topic)
+rosbag record -O {name}.bag {topic1} {topic2} ...
+```
+
+### note1
+Difference between stereo images and RGB images/
+<img src="images/sample.png">
+
+---
+
 # Depthai ROS Repository
 Hi and welcome to the main depthai-ros respository! Here you can find ROS related code for OAK cameras from Luxonis. Don't have one? You can get them [here!](https://shop.luxonis.com/)
 
