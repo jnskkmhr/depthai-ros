@@ -61,7 +61,7 @@
   rgb_i_low_bandwidth_quality: 50
   rgb_i_max_q_size: 30
   rgb_i_preview_size: 416
-  rgb_i_publish_topic: true
+  rgb_i_publish_topic: false
   rgb_i_resolution: '1080'
   rgb_i_set_isp_scale: true
   rgb_i_width: 640
