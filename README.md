@@ -8,14 +8,14 @@ I have done the following things so far.
 The following is the brief description of sensor data collected.
 
 * Stereo Images
-  * 400p (400x640px)
+  * 400p (640x400)
   * 480p is not available option for [OV9282](https://docs.luxonis.com/projects/hardware/en/latest/pages/articles/sensors/ov9282.html#ov9282) image sensors
   * auto-exposure
 * IMU
   * default setting (not sure)
 * Yolo BBox
   * in depthai custom message
-  * BBox is collected by inference on 1080p(720x1080px)image
+  * BBox is collected by inference on 1080p(1920x1080)image
   * when fusing bbox info with mono-images, (definitely) need to transform BBox scale(*note1)
 
 To get rosbag, execute the following commands
