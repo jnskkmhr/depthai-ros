@@ -2,15 +2,23 @@
  * This example shows usage of depth camera in crop mode with the possibility to move the crop.
  * Use 'WASD' in order to do it.
  */
-#include <depthai_ros_msgs/NormalizedImageCrop.h>
 
-#include <depthai_bridge/BridgePublisher.hpp>
-#include <depthai_bridge/ImageConverter.hpp>
 #include <iostream>
 #include <memory>
+#include <string>
 
-#include "depthai/depthai.hpp"
-#include "ros/ros.h"
+#include "depthai/device/DataQueue.hpp"
+#include "depthai/device/Device.hpp"
+#include "depthai/pipeline/Pipeline.hpp"
+#include "depthai/pipeline/node/ImageManip.hpp"
+#include "depthai/pipeline/node/MonoCamera.hpp"
+#include "depthai/pipeline/node/StereoDepth.hpp"
+#include "depthai/pipeline/node/XLinkIn.hpp"
+#include "depthai/pipeline/node/XLinkOut.hpp"
+#include "depthai_bridge/BridgePublisher.hpp"
+#include "depthai_bridge/ImageConverter.hpp"
+#include "depthai_ros_msgs/NormalizedImageCrop.h"
+#include "ros/node_handle.h"
 #include "sensor_msgs/Image.h"
 
 // Step size ('W','A','S','D' controls)
@@ -92,8 +100,8 @@ int main() {
     }
 
     // Properties
-    monoRight->setBoardSocket(dai::CameraBoardSocket::RIGHT);
-    monoLeft->setBoardSocket(dai::CameraBoardSocket::LEFT);
+    monoRight->setBoardSocket(dai::CameraBoardSocket::CAM_C);
+    monoLeft->setBoardSocket(dai::CameraBoardSocket::CAM_B);
     monoRight->setResolution(monoRes);
     monoLeft->setResolution(monoRes);
 
@@ -129,7 +137,7 @@ int main() {
 
     dai::rosBridge::ImageConverter depthConverter(cameraName + "_right_camera_optical_frame", true);
     // TODO(sachin): Modify the calibration based on crop from service
-    auto rightCameraInfo = converter.calibrationToCameraInfo(calibrationHandler, dai::CameraBoardSocket::RIGHT, monoWidth, monoHeight);
+    auto rightCameraInfo = converter.calibrationToCameraInfo(calibrationHandler, dai::CameraBoardSocket::CAM_C, monoWidth, monoHeight);
 
     dai::rosBridge::BridgePublisher<sensor_msgs::Image, dai::ImgFrame> depthPublish(depthQueue,
                                                                                     pnh,

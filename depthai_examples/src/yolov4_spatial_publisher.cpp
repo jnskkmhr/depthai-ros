@@ -1,22 +1,23 @@
 
 #include <cstdio>
-#include <depthai/pipeline/node/MonoCamera.hpp>
-#include <iostream>
 
-#include "ros/ros.h"
-// #include "utility.hpp"
-
-#include <camera_info_manager/camera_info_manager.h>
-#include <vision_msgs/Detection2DArray.h>
-
-#include <depthai_bridge/BridgePublisher.hpp>
-#include <depthai_bridge/ImageConverter.hpp>
-#include <depthai_bridge/SpatialDetectionConverter.hpp>
-
+#include "camera_info_manager/camera_info_manager.h"
+#include "depthai_bridge/BridgePublisher.hpp"
+#include "depthai_bridge/ImageConverter.hpp"
+#include "depthai_bridge/SpatialDetectionConverter.hpp"
+#include "ros/node_handle.h"
 #include "sensor_msgs/Image.h"
+#include "vision_msgs/Detection2DArray.h"
 
 // Inludes common necessary includes for development using depthai library
-#include "depthai/depthai.hpp"
+#include "depthai/device/DataQueue.hpp"
+#include "depthai/device/Device.hpp"
+#include "depthai/pipeline/Pipeline.hpp"
+#include "depthai/pipeline/node/ColorCamera.hpp"
+#include "depthai/pipeline/node/MonoCamera.hpp"
+#include "depthai/pipeline/node/SpatialDetectionNetwork.hpp"
+#include "depthai/pipeline/node/StereoDepth.hpp"
+#include "depthai/pipeline/node/XLinkOut.hpp"
 
 const std::vector<std::string> label_map = {
     "person",        "bicycle",      "car",           "motorbike",     "aeroplane",   "bus",         "train",       "truck",        "boat",
@@ -68,16 +69,16 @@ dai::Pipeline createPipeline(bool syncNN, bool subpixel, std::string nnPath, int
     }
 
     monoLeft->setResolution(monoResolution);
-    monoLeft->setBoardSocket(dai::CameraBoardSocket::LEFT);
+    monoLeft->setBoardSocket(dai::CameraBoardSocket::CAM_B);
     monoRight->setResolution(monoResolution);
-    monoRight->setBoardSocket(dai::CameraBoardSocket::RIGHT);
+    monoRight->setBoardSocket(dai::CameraBoardSocket::CAM_C);
 
     /// setting node configs
     stereo->initialConfig.setConfidenceThreshold(confidence);
     stereo->setRectifyEdgeFillColor(0);  // black, to better see the cutout
     stereo->initialConfig.setLeftRightCheckThreshold(LRchecktresh);
     stereo->setSubpixel(subpixel);
-    stereo->setDepthAlign(dai::CameraBoardSocket::RGB);
+    stereo->setDepthAlign(dai::CameraBoardSocket::CAM_A);
 
     spatialDetectionNetwork->setBlobPath(nnPath);
     spatialDetectionNetwork->setConfidenceThreshold(0.5f);
@@ -180,7 +181,7 @@ int main(int argc, char** argv) {
     }
 
     dai::rosBridge::ImageConverter rgbConverter(tfPrefix + "_rgb_camera_optical_frame", false);
-    auto rgbCameraInfo = rgbConverter.calibrationToCameraInfo(calibrationHandler, dai::CameraBoardSocket::RGB, 416, 416);
+    auto rgbCameraInfo = rgbConverter.calibrationToCameraInfo(calibrationHandler, dai::CameraBoardSocket::CAM_A, 416, 416);
     rgbPublish = std::make_unique<dai::rosBridge::BridgePublisher<sensor_msgs::Image, dai::ImgFrame>>(
         colorQueue,
         pnh,
@@ -203,7 +204,7 @@ int main(int argc, char** argv) {
         30);
 
     dai::rosBridge::ImageConverter depthConverter(tfPrefix + "_right_camera_optical_frame", true);
-    auto rightCameraInfo = depthConverter.calibrationToCameraInfo(calibrationHandler, dai::CameraBoardSocket::RIGHT, width, height);
+    auto rightCameraInfo = depthConverter.calibrationToCameraInfo(calibrationHandler, dai::CameraBoardSocket::CAM_C, width, height);
     depthPublish = std::make_unique<dai::rosBridge::BridgePublisher<sensor_msgs::Image, dai::ImgFrame>>(
         depthQueue,
         pnh,

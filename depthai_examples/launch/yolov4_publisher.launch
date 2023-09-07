@@ -5,6 +5,7 @@
     <arg name="tf_prefix"             default="oak"         />
     <arg name="base_frame"            default="oak-d_frame" />
     <arg name="parent_frame"          default="oak-d-base-frame" />
+    <arg name="publisher_name"        default="yolov4_publisher" />
 
     <arg name="cam_pos_x"             default="0.0" /> <!-- Position respect to base frame (i.e. "base_link) -->
     <arg name="cam_pos_y"             default="0.0" /> <!-- Position respect to base frame (i.e. "base_link) -->
@@ -22,7 +23,7 @@
     <arg name="nnName"                default="x"         />
     <arg name="resourceBaseFolder"    default="$(find depthai_examples)/resources" />
 
-    <include file="$(find depthai_bridge)/launch/urdf.launch">
+    <include file="$(find depthai_descriptions)/launch/urdf.launch">
         <arg name="base_frame"      value="$(arg  base_frame)"  />
         <arg name="parent_frame"    value="$(arg  parent_frame)"/>
         <arg name="camera_model"    value="$(arg  camera_model)"/>
@@ -35,7 +36,7 @@
         <arg name="cam_yaw"         value="$(arg  cam_yaw)"     />
     </include>
 
-    <node name="yolov4_publisher" pkg="depthai_examples" type="yolov4_spatial_node" output="screen" required="true">
+    <node name="$(arg publisher_name)" pkg="depthai_examples" type="yolov4_spatial_node" output="screen" required="true">
         <param name="tf_prefix"           value="$(arg tf_prefix)"     />
         <param name="camera_param_uri"    value="$(arg camera_param_uri)"/>
         <param name="sync_nn"             value="$(arg sync_nn)"/>

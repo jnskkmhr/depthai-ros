@@ -1,20 +1,16 @@
 #pragma once
 
-#include <cv_bridge/cv_bridge.h>
-#include <ros/ros.h>
-
-#include <boost/make_shared.hpp>
-#include <boost/range/algorithm.hpp>
-#include <depthai-shared/common/CameraBoardSocket.hpp>
-#include <depthai-shared/common/Point2f.hpp>
-#include <depthai/depthai.hpp>
-#include <depthai_bridge/depthaiUtility.hpp>
-#include <iostream>
-#include <opencv2/opencv.hpp>
-#include <sstream>
+#include <deque>
+#include <memory>
 #include <tuple>
 #include <unordered_map>
 
+#include "cv_bridge/cv_bridge.h"
+#include "depthai-shared/common/CameraBoardSocket.hpp"
+#include "depthai-shared/common/Point2f.hpp"
+#include "depthai/device/CalibrationHandler.hpp"
+#include "depthai/pipeline/datatype/ImgFrame.hpp"
+#include "ros/time.h"
 #include "sensor_msgs/CameraInfo.h"
 #include "sensor_msgs/Image.h"
 #include "std_msgs/Header.h"
@@ -31,8 +27,26 @@ using TimePoint = std::chrono::time_point<std::chrono::steady_clock, std::chrono
 class ImageConverter {
    public:
     // ImageConverter() = default;
-    ImageConverter(const std::string frameName, bool interleaved);
-    ImageConverter(bool interleaved);
+    ImageConverter(const std::string frameName, bool interleaved, bool getBaseDeviceTimestamp = false);
+    ImageConverter(bool interleaved, bool getBaseDeviceTimestamp = false);
+
+    /**
+     * @brief Handles cases in which the ROS time shifts forward or backward
+     *  Should be called at regular intervals or on-change of ROS time, depending
+     *  on monitoring.
+     *
+     */
+    void updateRosBaseTime();
+
+    /**
+     * @brief Commands the converter to automatically update the ROS base time on message conversion based on variable
+     *
+     * @param update: bool whether to automatically update the ROS base time on message conversion
+     */
+    void setUpdateRosBaseTimeOnToRosMsg(bool update = true) {
+        _updateRosBaseTimeOnToRosMsg = update;
+    }
+
     void toRosMsgFromBitStream(std::shared_ptr<dai::ImgFrame> inData,
                                std::deque<ImageMsgs::Image>& outImageMsgs,
                                dai::RawImgFrame::Type type,
@@ -67,6 +81,11 @@ class ImageConverter {
     std::chrono::time_point<std::chrono::steady_clock> _steadyBaseTime;
 
     ::ros::Time _rosBaseTime;
+    bool _getBaseDeviceTimestamp;
+    // For handling ROS time shifts and debugging
+    int64_t _totalNsChange{0};
+    // Whether to update the ROS base time on each message conversion
+    bool _updateRosBaseTimeOnToRosMsg{false};
 };
 
 }  // namespace ros

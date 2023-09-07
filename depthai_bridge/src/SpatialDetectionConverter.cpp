@@ -1,17 +1,35 @@
-#include <depthai_bridge/SpatialDetectionConverter.hpp>
+#include "depthai_bridge/SpatialDetectionConverter.hpp"
+
+#include "depthai_bridge/depthaiUtility.hpp"
 
 namespace dai {
 namespace ros {
 
-SpatialDetectionConverter::SpatialDetectionConverter(std::string frameName, int width, int height, bool normalized)
-    : _frameName(frameName), _width(width), _height(height), _normalized(normalized), _steadyBaseTime(std::chrono::steady_clock::now()) {
+SpatialDetectionConverter::SpatialDetectionConverter(std::string frameName, int width, int height, bool normalized, bool getBaseDeviceTimestamp)
+    : _frameName(frameName),
+      _width(width),
+      _height(height),
+      _normalized(normalized),
+      _steadyBaseTime(std::chrono::steady_clock::now()),
+      _getBaseDeviceTimestamp(getBaseDeviceTimestamp) {
     _rosBaseTime = ::ros::Time::now();
+}
+
+void SpatialDetectionConverter::updateRosBaseTime() {
+    updateBaseTime(_steadyBaseTime, _rosBaseTime, _totalNsChange);
 }
 
 void SpatialDetectionConverter::toRosMsg(std::shared_ptr<dai::SpatialImgDetections> inNetData,
                                          std::deque<SpatialMessages::SpatialDetectionArray>& opDetectionMsgs) {
+    if(_updateRosBaseTimeOnToRosMsg) {
+        updateRosBaseTime();
+    }
     // setting the header
-    auto tstamp = inNetData->getTimestamp();
+    std::chrono::_V2::steady_clock::time_point tstamp;
+    if(_getBaseDeviceTimestamp)
+        tstamp = inNetData->getTimestampDevice();
+    else
+        tstamp = inNetData->getTimestamp();
     SpatialMessages::SpatialDetectionArray opDetectionMsg;
 
     opDetectionMsg.header.stamp = getFrameTime(_rosBaseTime, _steadyBaseTime, tstamp);
@@ -59,8 +77,14 @@ void SpatialDetectionConverter::toRosMsg(std::shared_ptr<dai::SpatialImgDetectio
 
 void SpatialDetectionConverter::toRosVisionMsg(std::shared_ptr<dai::SpatialImgDetections> inNetData,
                                                std::deque<vision_msgs::Detection3DArray>& opDetectionMsgs) {
-    // setting the header
-    auto tstamp = inNetData->getTimestamp();
+    if(_updateRosBaseTimeOnToRosMsg) {
+        updateRosBaseTime();
+    }
+    std::chrono::_V2::steady_clock::time_point tstamp;
+    if(_getBaseDeviceTimestamp)
+        tstamp = inNetData->getTimestampDevice();
+    else
+        tstamp = inNetData->getTimestamp();
     vision_msgs::Detection3DArray opDetectionMsg;
 
     opDetectionMsg.header.stamp = getFrameTime(_rosBaseTime, _steadyBaseTime, tstamp);

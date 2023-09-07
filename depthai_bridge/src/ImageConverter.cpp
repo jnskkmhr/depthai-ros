@@ -1,5 +1,8 @@
 
-#include <depthai_bridge/ImageConverter.hpp>
+#include "depthai_bridge/ImageConverter.hpp"
+
+#include "depthai_bridge/depthaiUtility.hpp"
+#include "opencv2/imgcodecs.hpp"
 
 namespace dai {
 
@@ -21,20 +24,32 @@ std::unordered_map<dai::RawImgFrame::Type, std::string> ImageConverter::planarEn
     {dai::RawImgFrame::Type::NV12, "rgb8"},
     {dai::RawImgFrame::Type::YUV420p, "rgb8"}};
 
-ImageConverter::ImageConverter(bool interleaved) : _daiInterleaved(interleaved), _steadyBaseTime(std::chrono::steady_clock::now()) {
+ImageConverter::ImageConverter(bool interleaved, bool getBaseDeviceTimestamp)
+    : _daiInterleaved(interleaved), _steadyBaseTime(std::chrono::steady_clock::now()), _getBaseDeviceTimestamp(getBaseDeviceTimestamp) {
     _rosBaseTime = ::ros::Time::now();
 }
 
-ImageConverter::ImageConverter(const std::string frameName, bool interleaved)
-    : _frameName(frameName), _daiInterleaved(interleaved), _steadyBaseTime(std::chrono::steady_clock::now()) {
+ImageConverter::ImageConverter(const std::string frameName, bool interleaved, bool getBaseDeviceTimestamp)
+    : _frameName(frameName), _daiInterleaved(interleaved), _steadyBaseTime(std::chrono::steady_clock::now()), _getBaseDeviceTimestamp(getBaseDeviceTimestamp) {
     _rosBaseTime = ::ros::Time::now();
+}
+
+void ImageConverter::updateRosBaseTime() {
+    updateBaseTime(_steadyBaseTime, _rosBaseTime, _totalNsChange);
 }
 
 void ImageConverter::toRosMsgFromBitStream(std::shared_ptr<dai::ImgFrame> inData,
                                            std::deque<ImageMsgs::Image>& outImageMsgs,
                                            dai::RawImgFrame::Type type,
                                            const sensor_msgs::CameraInfo& info) {
-    auto tstamp = inData->getTimestamp();
+    if(_updateRosBaseTimeOnToRosMsg) {
+        updateRosBaseTime();
+    }
+    std::chrono::_V2::steady_clock::time_point tstamp;
+    if(_getBaseDeviceTimestamp)
+        tstamp = inData->getTimestampDevice();
+    else
+        tstamp = inData->getTimestamp();
     ImageMsgs::Image outImageMsg;
     StdMsgs::Header header;
     header.frame_id = _frameName;
@@ -84,7 +99,14 @@ void ImageConverter::toRosMsgFromBitStream(std::shared_ptr<dai::ImgFrame> inData
 }
 
 void ImageConverter::toRosMsg(std::shared_ptr<dai::ImgFrame> inData, std::deque<ImageMsgs::Image>& outImageMsgs) {
-    auto tstamp = inData->getTimestamp();
+    if(_updateRosBaseTimeOnToRosMsg) {
+        updateRosBaseTime();
+    }
+    std::chrono::_V2::steady_clock::time_point tstamp;
+    if(_getBaseDeviceTimestamp)
+        tstamp = inData->getTimestampDevice();
+    else
+        tstamp = inData->getTimestamp();
     ImageMsgs::Image outImageMsg;
     StdMsgs::Header header;
     header.frame_id = _frameName;

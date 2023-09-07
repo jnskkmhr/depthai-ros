@@ -1,12 +1,12 @@
 
-#include <camera_info_manager/camera_info_manager.h>
 
 #include <cstdio>
 #include <functional>
 #include <iostream>
 #include <tuple>
 
-#include "ros/ros.h"
+#include "camera_info_manager/camera_info_manager.h"
+#include "ros/node_handle.h"
 #include "sensor_msgs/Image.h"
 #include "stereo_msgs/DisparityImage.h"
 
@@ -15,7 +15,15 @@
 #include <depthai_bridge/DisparityConverter.hpp>
 #include <depthai_bridge/ImageConverter.hpp>
 
-#include "depthai/depthai.hpp"
+#include "depthai/device/DataQueue.hpp"
+#include "depthai/device/Device.hpp"
+#include "depthai/pipeline/Pipeline.hpp"
+#include "depthai/pipeline/node/MonoCamera.hpp"
+#include "depthai/pipeline/node/StereoDepth.hpp"
+#include "depthai/pipeline/node/XLinkOut.hpp"
+#include "depthai_bridge/BridgePublisher.hpp"
+#include "depthai_bridge/DisparityConverter.hpp"
+#include "depthai_bridge/ImageConverter.hpp"
 
 std::tuple<dai::Pipeline, int, int> createPipeline(
     bool withDepth, bool lrcheck, bool extended, bool subpixel, int confidence, int LRchecktresh, std::string resolution) {
@@ -62,9 +70,9 @@ std::tuple<dai::Pipeline, int, int> createPipeline(
 
     // MonoCamera
     monoLeft->setResolution(monoResolution);
-    monoLeft->setBoardSocket(dai::CameraBoardSocket::LEFT);
+    monoLeft->setBoardSocket(dai::CameraBoardSocket::CAM_B);
     monoRight->setResolution(monoResolution);
-    monoRight->setBoardSocket(dai::CameraBoardSocket::RIGHT);
+    monoRight->setBoardSocket(dai::CameraBoardSocket::CAM_C);
 
     // StereoDepth
     stereo->initialConfig.setConfidenceThreshold(confidence);
@@ -146,7 +154,7 @@ int main(int argc, char** argv) {
     }
 
     dai::rosBridge::ImageConverter converter(tfPrefix + "_left_camera_optical_frame", true);
-    auto leftCameraInfo = converter.calibrationToCameraInfo(calibrationHandler, dai::CameraBoardSocket::LEFT, monoWidth, monoHeight);
+    auto leftCameraInfo = converter.calibrationToCameraInfo(calibrationHandler, dai::CameraBoardSocket::CAM_B, monoWidth, monoHeight);
     dai::rosBridge::BridgePublisher<sensor_msgs::Image, dai::ImgFrame> leftPublish(
         leftQueue,
         pnh,
@@ -159,7 +167,7 @@ int main(int argc, char** argv) {
     leftPublish.addPublisherCallback();
 
     dai::rosBridge::ImageConverter rightconverter(tfPrefix + "_right_camera_optical_frame", true);
-    auto rightCameraInfo = converter.calibrationToCameraInfo(calibrationHandler, dai::CameraBoardSocket::RIGHT, monoWidth, monoHeight);
+    auto rightCameraInfo = converter.calibrationToCameraInfo(calibrationHandler, dai::CameraBoardSocket::CAM_C, monoWidth, monoHeight);
 
     dai::rosBridge::BridgePublisher<sensor_msgs::Image, dai::ImgFrame> rightPublish(
         rightQueue,

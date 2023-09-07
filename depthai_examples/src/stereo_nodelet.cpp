@@ -1,18 +1,25 @@
-#include <camera_info_manager/camera_info_manager.h>
-#include <nodelet/nodelet.h>
-#include <pluginlib/class_list_macros.h>
-
 #include <functional>
 #include <tuple>
 
-#include "ros/ros.h"
+#include "camera_info_manager/camera_info_manager.h"
+#include "nodelet/nodelet.h"
+#include "pluginlib/class_list_macros.h"
+#include "ros/node_handle.h"
 #include "sensor_msgs/Image.h"
 
 // Inludes common necessary includes for development using depthai library
-#include <depthai_bridge/BridgePublisher.hpp>
-#include <depthai_bridge/ImageConverter.hpp>
 
-#include "depthai/depthai.hpp"
+#include "depthai/device/DataQueue.hpp"
+#include "depthai/device/Device.hpp"
+#include "depthai/pipeline/Pipeline.hpp"
+#include "depthai/pipeline/node/MonoCamera.hpp"
+#include "depthai/pipeline/node/StereoDepth.hpp"
+#include "depthai/pipeline/node/XLinkIn.hpp"
+#include "depthai/pipeline/node/XLinkOut.hpp"
+#include "depthai_bridge/BridgePublisher.hpp"
+#include "depthai_bridge/ImageConverter.hpp"
+#include "depthai_bridge/ImuConverter.hpp"
+#include "depthai_bridge/SpatialDetectionConverter.hpp"
 
 namespace depthai_examples {
 
@@ -86,7 +93,7 @@ class StereoNodelet : public nodelet::Nodelet {
         }
 
         leftConverter = std::make_unique<dai::rosBridge::ImageConverter>(tfPrefix + "_left_camera_optical_frame", true);
-        auto leftCameraInfo = leftConverter->calibrationToCameraInfo(calibrationHandler, dai::CameraBoardSocket::LEFT, monoWidth, monoHeight);
+        auto leftCameraInfo = leftConverter->calibrationToCameraInfo(calibrationHandler, dai::CameraBoardSocket::CAM_B, monoWidth, monoHeight);
 
         leftPublish = std::make_unique<dai::rosBridge::BridgePublisher<sensor_msgs::Image, dai::ImgFrame>>(
             leftQueue,
@@ -101,7 +108,7 @@ class StereoNodelet : public nodelet::Nodelet {
         leftPublish->addPublisherCallback();
 
         rightConverter = std::make_unique<dai::rosBridge::ImageConverter>(tfPrefix + "_right_camera_optical_frame", true);
-        auto rightCameraInfo = rightConverter->calibrationToCameraInfo(calibrationHandler, dai::CameraBoardSocket::RIGHT, monoWidth, monoHeight);
+        auto rightCameraInfo = rightConverter->calibrationToCameraInfo(calibrationHandler, dai::CameraBoardSocket::CAM_C, monoWidth, monoHeight);
 
         rightPublish = std::make_unique<dai::rosBridge::BridgePublisher<sensor_msgs::Image, dai::ImgFrame>>(
             rightQueue,
@@ -180,9 +187,9 @@ class StereoNodelet : public nodelet::Nodelet {
 
         // MonoCamera
         monoLeft->setResolution(monoResolution);
-        monoLeft->setBoardSocket(dai::CameraBoardSocket::LEFT);
+        monoLeft->setBoardSocket(dai::CameraBoardSocket::CAM_B);
         monoRight->setResolution(monoResolution);
-        monoRight->setBoardSocket(dai::CameraBoardSocket::RIGHT);
+        monoRight->setBoardSocket(dai::CameraBoardSocket::CAM_C);
 
         // int maxDisp = 96;
         // if (extended) maxDisp *= 2;
