@@ -11,10 +11,17 @@
         <remap from="/nodelet_manager/list" to="$(arg name)/nodelet_manager/list"/>
     </node>
     <node name="$(arg name)" pkg="nodelet" type="nodelet" output="screen" required="true" args="load depthai_ros_driver/Camera $(arg  name)_nodelet_manager">
-        <rosparam param="camera_i_pipeline_type">RGBDStereo</rosparam>
+        <rosparam param="camera_i_pipeline_type">Stereo</rosparam>
         <rosparam param="camera_i_nn_type">none</rosparam>
         <rosparam param="right_i_publish_topic">true</rosparam>
         <rosparam param="left_i_publish_topic">true</rosparam>
+        <rosparam param="left_i_fps">15.0</rosparam>
+        <rosparam param="right_i_fps">15.0</rosparam>
+        <rosparam param="camera_i_usb_speed">SUPER_PLUS</rosparam>
+        <rosparam param="left_i_width">640</rosparam>
+        <rosparam param="left_i_height">400</rosparam>
+        <rosparam param="right_i_width">640</rosparam>
+        <rosparam param="right_i_height">400</rosparam>
     </node>
 
     <node if="$(eval type=='mono')" 

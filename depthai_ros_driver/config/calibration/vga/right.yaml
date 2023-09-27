@@ -1,0 +1,27 @@
+image_width: 640
+image_height: 400
+camera_name:  /right
+camera_matrix:
+  rows: 3
+  cols: 3
+  data: [402.38079833984375,   0.     , 316.1644592285156,
+           0.     , 402.38079833984375, 191.73631286621094,
+           0.     ,   0.     ,   1.     ]
+distortion_model: plumb_bob
+distortion_coefficients:
+  rows: 1
+  cols: 5
+  data: [0.00, 0.00, 0.00, 0.00, 0.000000]
+rectification_matrix:
+  rows: 3
+  cols: 3
+  data: [ 1.0,  0.0,  0.0,
+         0.0,  1.0, 0.0,
+         0.0,  0.0,  1.0]
+#stereo baseline=7.5cm
+projection_matrix:
+  rows: 3
+  cols: 4
+  data: [ 402.38079833984375,    0.     ,  316.1644592285156, -30.1786,
+            0.     ,  402.38079833984375,  191.73631286621094,    0.     ,
+            0.     ,    0.     ,    1.     ,    0.     ]

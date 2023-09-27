@@ -1,0 +1,28 @@
+/oak:
+  # IMU
+  camera_i_enable_imu: true
+  imu_i_acc_freq: 200
+  imu_i_gyro_freq: 200
+  imu_i_sync_method: LINEAR_INTERPOLATE_ACCEL
+  # General camera setting
+  camera_i_enable_ir: false
+  camera_i_floodlight_brightness: 0.0
+  camera_i_pipeline_type: Stereo
+  camera_i_usb_speed: SUPER_PLUS
+  # NN setting
+  camera_i_nn_type: none
+  # stereo camera setting
+  left_i_calibration_file: package://depthai_ros_driver/config/calibration/vga/left.yaml
+  left_i_fps: 15.0
+  left_i_publish_topic: true
+  left_i_resolution: '400'
+  left_r_exposure: 800
+  right_i_calibration_file: package://depthai_ros_driver/config/calibration/vga/right.yaml
+  right_i_fps: 15.0
+  right_i_publish_topic: true
+  right_i_resolution: '400'
+  right_r_exposure: 800
+  stereo_i_publish_left_rect: true
+  stereo_i_publish_right_rect: true
+  stereo_i_reverse_stereo_socket_order: true
+  stereo_i_publish_synced_rect_pair: true

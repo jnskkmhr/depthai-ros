@@ -1,0 +1,6 @@
+<launch>
+    <arg name="savedir" value="/home/jnskkmhr/ROSBAG/j02_oakd_pro"/>
+    <arg name="bagname" value="oakD_pro_stereo_inertial_vga"/>
+    <node pkg="rosbag" type="record" name="recorder"
+    args="-O $(arg savedir)/$(arg bagname) /oak/left/camera_info /oak/left/image_raw /oak/left/image_raw/compressed /oak/right/camera_info /oak/right/image_raw /oak/right/image_raw/compressed /oak/imu/data /tf /tf_static"/>
+</launch>

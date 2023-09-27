@@ -1,22 +1,28 @@
 /oak:
   camera_i_enable_imu: true
+  imu_i_acc_freq: 200
+  imu_i_gyro_freq: 200
+  # imu_i_sync_method: COPY
+  imu_i_sync_method: LINEAR_INTERPOLATE_ACCEL
+  imu_i_message_type: IMU
   camera_i_enable_ir: false
   camera_i_floodlight_brightness: 0.0
   camera_i_ip: ''
   camera_i_laser_dot_brightness: 800.0
   camera_i_mx_id: ''
-  camera_i_nn_type: spatial
-  camera_i_pipeline_type: RGBD
+  camera_i_nn_type: none
+  camera_i_pipeline_type: Stereo
   camera_i_usb_port_id: ''
   camera_i_usb_speed: SUPER_PLUS
-  imu_i_max_q_size: 30
+  imu_i_max_q_size: 2
   left_i_board_socket_id: 1
-  left_i_calibration_file: ''
-  left_i_fps: 30.0
+  left_i_calibration_file: file:///home/jnskkmhr/catkin_ws/src/depthai-ros/depthai_ros_driver/config/calibration/left.yaml
+  # left_i_calibration_file: ''
+  left_i_fps: 15.0
   left_i_height: 400
-  left_i_low_bandwidth: false
+  left_i_low_bandwidth: true
   left_i_low_bandwidth_quality: 50
-  left_i_max_q_size: 30
+  left_i_max_q_size: 10
   left_i_preview_size: 416
   left_i_publish_topic: true
   left_i_resolution: '400'
@@ -53,7 +59,7 @@
   rgb_i_board_socket_id: 0
   rgb_i_calibration_file: ''
   rgb_i_enable_preview: false
-  rgb_i_fps: 60.0
+  rgb_i_fps: 30.0
   rgb_i_height: 400
   rgb_i_interleaved: true
   rgb_i_keep_preview_aspect_ratio: true
@@ -74,12 +80,13 @@
   rgb_r_set_man_whitebalance: false
   rgb_r_whitebalance: 3300
   right_i_board_socket_id: 2
-  right_i_calibration_file: ''
-  right_i_fps: 30.0
+  right_i_calibration_file: file:///home/jnskkmhr/catkin_ws/src/depthai-ros/depthai_ros_driver/config/calibration/right.yaml
+  # right_i_calibration_file: ''
+  right_i_fps: 15.0
   right_i_height: 400
-  right_i_low_bandwidth: false
+  right_i_low_bandwidth: true
   right_i_low_bandwidth_quality: 50
-  right_i_max_q_size: 30
+  right_i_max_q_size: 10
   right_i_preview_size: 416
   right_i_publish_topic: true
   right_i_resolution: '400'
@@ -112,7 +119,7 @@
         optimize_for: 1
         quality: 31
         target_bitrate: 800000
-  stereo_i_align_depth: true
+  stereo_i_align_depth: false
   stereo_i_bilateral_sigma: 0
   stereo_i_board_socket_id: 0
   stereo_i_calibration_file: ''
